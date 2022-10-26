@@ -1,5 +1,7 @@
 package model.entities;
 
+import model.exceptions.DomainExcepction;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -13,10 +15,13 @@ public class Reservation {
     // formatação da data - em static para não ser instanciado um novo SimpleDateFormat
     private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
-    public Reservation(Integer roomNumber, Date checkin, Date checkout) {
-        this.roomNumber = roomNumber;
-        this.checkin = checkin;
-        this.checkout = checkout;
+    public Reservation(Integer roomNumber, Date checkin, Date checkout)  {
+        if (!checkout.after(checkin)){
+            throw new DomainExcepction ( " Check-out date must be after check-in date");
+        }
+            this.roomNumber = roomNumber;
+            this.checkin = checkin;
+            this.checkout = checkout;
     }
 
     public Integer getRoomNumber() {
@@ -31,11 +36,9 @@ public class Reservation {
         return checkin;
     }
 
-
     public Date getCheckout() {
         return checkout;
     }
-
 
     public long duration() {
         // Pegando a diferença entre as duas datas em milissegundos
@@ -47,20 +50,22 @@ public class Reservation {
         return diff;
     }
 
-    public String  updateDates(Date checkin, Date checkout){
+    public void  updateDates(Date checkin, Date checkout) {
         //Cria uma data com o horario de agora
         Date now = new Date();
         if (checkin.before(now) || checkout.before(now)){
-            return "Error in reservation: Reservation dates for update must be future dates";
+
+            // IllegalArgumentException usamos quando os argumentos que passamos no metodo são invalidos
+            throw new DomainExcepction( " Reservation dates for update must be future dates");
         }
          if (!checkout.after(checkin)){
-            return " Check-out date must be after check-in date";
+            throw new DomainExcepction ( " Check-out date must be after check-in date");
 
         }
-         // Se retornar nulo, significa que não aconteceu nenhum erro
-        this.checkin = checkin;
-        this.checkout = checkout;
-        return null;
+             // Se retornar nulo, significa que não aconteceu nenhum erro
+            this.checkin = checkin;
+            this.checkout = checkout;
+
     }
 
     @Override
